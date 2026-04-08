@@ -100,7 +100,16 @@ app.get("/is-alive", async (req, res) => {
     }
 });
 
-
+app.get("/",async(req,res)=>{
+    try {
+        console.log("request come");
+        res.status(200).json({
+            msg:"succesful  "
+        })
+    } catch (error){
+        
+    }
+})
 
 webRTCSSignalingSocket(io);
 
