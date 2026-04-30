@@ -1,12 +1,13 @@
+import type { Server, Socket } from "socket.io";
 import { Session } from "../models/session.model.js";
 
-const webRTCSSignalingSocket = (io) => {
-  io.on("connection", async (socket) => {
+const webRTCSSignalingSocket = (io: Server) => {
+  io.on("connection", async (socket: Socket) => {
     console.log("User Connected", socket.id);
 
     // Track session and user for this socket
-    let currentSessionId = null;
-    let currentUserId = null;
+    let currentSessionId = "";
+    let currentUserId = "";
 
     socket.on("prepare-session", async ({ sessionId, userId }) => {
       console.log(`User ${userId} is preparing to join session ${sessionId}`);
@@ -21,7 +22,7 @@ const webRTCSSignalingSocket = (io) => {
 
         socket.emit("session-info", {
           participant: session?.participants,
-        }); 
+        });
         console.log("Participants present in the session", session);
       } else {
         console.log(`Session not found. ID: ${sessionId}`);
@@ -42,8 +43,8 @@ const webRTCSSignalingSocket = (io) => {
           if (index !== -1) {
             session.participants[index] = {
               ...session.participants[index],
-              name: name || session.participants[index].name,
-              photo: photo || session.participants[index].photo,
+              name: name || session.participants[index]?.name,
+              photo: photo || session.participants[index]?.photo,
               micOn,
               videoOn,
               socketId: socket.id,
@@ -182,7 +183,7 @@ const webRTCSSignalingSocket = (io) => {
 
       try {
         const session = await Session.findOne({ sessionId: currentSessionId });
-        
+
         if (!session) {
           console.log(`Session ${currentSessionId} not found during cleanup`);
           return;
@@ -198,13 +199,13 @@ const webRTCSSignalingSocket = (io) => {
           session.participants.splice(index, 1);
           await session.save();
 
-          console.log(` User ${participant.name} (${participant.userId}) removed from session ${session.sessionId}`);
-          
+          console.log(` User ${participant?.name} (${participant?.userId}) removed from session ${session.sessionId}`);
+
           // Notify all remaining participants
           io.to(session.sessionId).emit("session-info", {
             participant: session.participants,
           });
-          io.to(session.sessionId).emit("participant-left", participant.userId);
+          io.to(session.sessionId).emit("participant-left", participant?.userId);
         } else {
           console.log(` Participant not found in session ${currentSessionId}`);
         }
