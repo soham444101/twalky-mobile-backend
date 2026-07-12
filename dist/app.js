@@ -9,6 +9,8 @@ dotenv.config({
     path: './.env'
 });
 const app = express();
+
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use((req, res, next) => {
@@ -82,36 +84,37 @@ app.get("/is-alive", async (req, res) => {
         });
     }
 });
+
 app.get("/", async (req, res) => {
     try {
         console.log("request come");
         res.status(200).json({
             msg: "succesful  "
-        });
-    }
-    catch (error) {
+        })
+    } catch (error) {
+
     }
 });
 webRTCSSignalingSocket(io);
 // Database Connection and Server Start
 ConnectDB()
     .then(() => {
-    const PORT = process.env.PORT || 5000;
-    server.listen(PORT, () => {
-        console.log(`Server is running on port ${PORT}`);
-        console.log(` WebSocket server ready`);
-        console.log(`  Database connected`);
-        console.log(` Server URL: http://localhost:${PORT}`);
-    });
-    server.on('error', (error) => {
-        console.error("Server error:", error);
+        const PORT = process.env.PORT || 5000;
+        server.listen(PORT, () => {
+            console.log(`Server is running on port ${PORT}`);
+            console.log(` WebSocket server ready`);
+            console.log(`  Database connected`);
+            console.log(` Server URL: http://localhost:${PORT}`);
+        });
+        server.on('error', (error) => {
+            console.error("Server error:", error);
+            process.exit(1);
+        });
+    })
+    .catch((error) => {
+        console.error("Failed to start server:", error);
         process.exit(1);
     });
-})
-    .catch((error) => {
-    console.error("Failed to start server:", error);
-    process.exit(1);
-});
 process.on('SIGINT', async () => {
     console.log(" Shutting down gracefully...");
     // Close all socket connections
