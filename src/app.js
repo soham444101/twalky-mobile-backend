@@ -12,6 +12,7 @@ dotenv.config({
 
 const app = express();
 
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -100,14 +101,14 @@ app.get("/is-alive", async (req, res) => {
     }
 });
 
-app.get("/",async(req,res)=>{
+app.get("/", async (req, res) => {
     try {
         console.log("request come");
         res.status(200).json({
-            msg:"succesful  "
+            msg: "succesful  "
         })
-    } catch (error){
-        
+    } catch (error) {
+
     }
 })
 
