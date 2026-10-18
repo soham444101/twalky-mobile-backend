@@ -64,7 +64,8 @@ const webRTCSSignalingSocket = (io) => {
 
           console.log(`User ${userId} joined session ${sessionId}`);
 
-          io.to(sessionId).emit("new-participant", {
+          // Other than current socket not useeed io it send all sockets in room.
+          socket.to(sessionId).emit("new-participant", {
             participant: {
               userId: userId,
               name: name,
@@ -90,12 +91,13 @@ const webRTCSSignalingSocket = (io) => {
     socket.on("current-room", async ({ sessionId }) => {
       console.log("Asking for room participants");
       const session = await Session.findOne({ sessionId });
-      io.to(sessionId).emit("all-participants", session?.participants);
+      socket.emit("all-participants", session?.participants);
     });
 
     socket.on("send-offer", async ({ sessionId, sender, receiver, offer }) => {
       console.log(`User ${sender} is sending an offer to ${receiver} in session ${sessionId}`);
-      io.to(sessionId).emit("receive-offer", { sender, receiver, offer });
+      // We wiil do send only to which socket is receiver in update.
+      sockert.to(sessionId).emit("receive-offer", { sender, receiver, offer });
     });
 
     socket.on("send-answer", async ({ sessionId, sender, receiver, answer }) => {
@@ -189,6 +191,7 @@ const webRTCSSignalingSocket = (io) => {
         }
 
         // Find participant by socketId OR userId (for redundancy)
+        /// NO need to store socketId in mongoose.
         const index = session.participants.findIndex(
           p => p.socketId === socket.id || p.userId === currentUserId
         );

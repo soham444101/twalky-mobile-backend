@@ -32,7 +32,7 @@ const io = new Server(server, {
     cors: {
         origin: "*",
         methods: ["GET", "POST"],
-        credentials: true
+        credentials: false// true when we send data from cookies or other sensitive info 
     },
     transports: ['websocket', 'polling']
 });

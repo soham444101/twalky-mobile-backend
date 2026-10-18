@@ -9,9 +9,9 @@ const sessionSchema = new mongoose.Schema({
     participants: [
         {
             userId: { type: String, default: "" },
-            socketId: { type: String, default: "" }, 
+            socketId: { type: String, default: "" }, // No need
             name: { type: String, default: "" }, 
-            photo: { type: String, default: "" },
+            photo: { type: String, defaault: "" },
             micOn: { type: Boolean, default: false },
             videoOn: { type: Boolean, default: false }
         }
