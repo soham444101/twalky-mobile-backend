@@ -35,16 +35,17 @@ cd twalky-meet-backend
 
 ---
 
+> Requires **Node.js 22 LTS** or newer.
+
 ### 2️⃣ Create `.env` file
 
-Create a `.env` file in the root directory with the following values:
+Copy the example file and adjust values if needed:
 
-```env
-MONGO_URL="your_mongodb_connection_string"
-PORT=5000
+```bash
+cp .env.example .env
 ```
 
-> 💡 Replace `"your_mongodb_connection_string"` with your MongoDB URI (from MongoDB Atlas or local setup).
+`PORT` defaults to `5000` when not set. The current foundation does not need MongoDB.
 
 ---
 
@@ -62,12 +63,25 @@ npm install
 npm run dev
 ```
 
-> Server will run on `http://localhost:5000`
-> WebSocket will be active on the same URL.
+> Runs `src/index.ts` with `tsx` through nodemon (`NODE_ENV=development`), restarts on `.ts`/`.json` changes in `src`, and logs requests with Morgan.
+> Server will run on `http://localhost:5000` — `GET /` returns a health response.
+
+---
+
+### 5️⃣ Run in production
+
+Build first, then start the compiled output:
+
+```bash
+npm run build
+npm start
+```
 
 
 
 ## 🌐 API Endpoints
+
+> ⚠️ The endpoints and socket events below describe the previous implementation, kept as reference in `srcPre/`. They are **not active** in the current TypeScript foundation.
 
 | Method   | Endpoint                   | Description                          |
 | -------- | -------------------------- | ------------------------------------ |
@@ -94,21 +108,24 @@ npm run dev
 ## 🧠 Folder Structure
 
 ```
-twalky-meet-backend/
+twalky-mobile-backend/
 │
-├── controllers/
-│   └── socket.js              # WebRTC signaling logic
+├── src/
+│   ├── config/
+│   │   └── env.ts             # Environment variable reading & validation
+│   ├── app.ts                 # Express app (middleware, routes)
+│   ├── server.ts              # HTTP server startup & graceful shutdown
+│   └── index.ts               # Entry point (loads .env, starts server)
 │
-├── models/
-│   └── session.model.js       # MongoDB session schema
-│
-├── database/
-│   └── index.database.js      # Database connection logic
-│
-├── .env                       # Environment variables
-├── app.js       # Main entry point
+├── srcPre/                    # Previous implementation (reference only, not compiled)
+├── dist/                      # Build output (git-ignored)
+├── .env.example               # Safe environment template
+├── nodemon.json               # Dev watcher config
+├── tsconfig.json
 └── package.json
 ```
+
+Future features go under `src/modules/<feature-name>/` (routes, controllers, models, services, validation, types — created only when needed). Shared `config`, `utils`, and `middlewares` live directly under `src/`.
 
 ---
 
@@ -125,17 +142,20 @@ twalky-meet-backend/
 
 ## 🧰 Useful Commands
 
-| Command        | Description                      |
-| -------------- | -------------------------------- |
-| `npm install`  | Install all dependencies         |
-| `npm run dev`  | Start server in development mode |
-| `npm start`    | Start server in production mode  |
+| Command             | Description                                      |
+| ------------------- | ------------------------------------------------ |
+| `npm install`       | Install all dependencies                         |
+| `npm run dev`       | Start server in development mode (auto-restart)  |
+| `npm run typecheck` | Type-check without emitting files                |
+| `npm run build`     | Compile TypeScript to `dist/`                    |
+| `npm start`         | Run the compiled server (run `build` first)      |
 
 ---
 
 ## 🧑‍💻 Developer Notes
 
-* Ensure **MongoDB** is running and accessible before starting the backend.
+* Use `.js` extensions in relative TypeScript imports (e.g. `import app from "./app.js"`) — required for Node ESM (`NodeNext`).
+* Never commit `.env`; only `.env.example` is tracked.
 * WebRTC communication requires the frontend to exchange SDP (offer/answer) correctly.
 * Keep the **Socket.IO version** consistent across frontend and backend.
 ---
